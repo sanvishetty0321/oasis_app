@@ -1,17 +1,5 @@
 # Temporary absolute safe mode fallback if MacBook system engine crashes
-import tkinter as ctk
-ctk.set_appearance_mode = lambda x: None
-ctk.set_default_color_theme = lambda x: None
-ctk.CTk = ctk.Tk
-ctk.CTkFrame = ctk.Frame
-ctk.CTkLabel = ctk.Label
-ctk.CTkButton = ctk.Button
-ctk.CTkEntry = ctk.Entry
-ctk.CTkScrollableFrame = ctk.Frame
-ctk.CTkSwitch = ctk.Checkbutton
-ctk.CTkSlider = ctk.Scale
-
-
+import customtkinter as ctk
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
 
