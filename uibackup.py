@@ -140,9 +140,20 @@ class OasisInterface(tk.Tk):
         self.btn_tasks.configure(bg="#11151E")
         self.btn_settings.configure(bg="#11151E")
 
-    def show_home(self): self.clear_stage_views(); self.btn_home.configure(bg="#2E4053"); self.home_frame.pack(fill="both", expand=True)
-    def show_tasks(self): self.clear_stage_views(); self.btn_tasks.configure(bg="#2E4053"); self.tasks_frame.pack(fill="both", expand=True)
-    def show_settings(self): self.clear_stage_views(); self.btn_settings.configure(bg="#2E4053"); self.settings_frame.pack(fill="both", expand=True)
+    def show_home(self):
+        self.clear_stage_views()
+        self.btn_home.configure(bg="#2E4053")
+        self.home_frame.pack(fill="both", expand=True)
+
+    def show_tasks(self):
+        self.clear_stage_views()
+        self.btn_tasks.configure(bg="#2E4053")
+        self.tasks_frame.pack(fill="both", expand=True)
+
+    def show_settings(self):
+        self.clear_stage_views()
+        self.btn_settings.configure(bg="#2E4053")
+        self.settings_frame.pack(fill="both", expand=True)
 
     # ---------------------------------------------------------
     # INTERCEPT MODALS OVERLAYS (Stress Mode Recovery)
