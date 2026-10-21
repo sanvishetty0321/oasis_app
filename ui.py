@@ -1,192 +1,188 @@
 import os
-import customtkinter as ctk
+import tkinter as tk
 from PIL import Image, ImageTk
 
-# Set up clean dark-mode base layers
-ctk.set_appearance_mode("dark")
-
-class OasisEngine(ctk.CTk):
+class OasisDiagnosticApp(tk.Tk):
     def __init__(self):
         super().__init__()
         
-        self.title("OASIS - Premium Desktop Interface Engine")
+        # Window Settings
+        self.title("OASIS - System Diagnostics Portal")
         self.geometry("980x680")
-        self.configure(fg_color="#0F1219")  # Midnight canvas background
+        self.configure(bg="#0F1219")  
+        self.resizable(False, False)
         
-        # Base application grid window layout configuration matrices
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        # State Trackers
+        self.current_screen = "login"
+        self.entered_name = ""
+        self.cursor_visible = True
+        self.blink_job = None  
+        self.assets = {}  
         
-        # Core data tracking analytics metrics states
-        self.user_name = "Sanvi"
-        self.gif_frames = []
-        self.current_frame = 0
-        self.playlist_index = 0
+        # Base Canvas
+        self.main_canvas = tk.Canvas(self, width=980, height=680, bd=0, highlightthickness=0, bg="#0F1219")
+        self.main_canvas.pack(fill="both", expand=True)
         
-        # Countdown timing tracker states
-        self.total_seconds_left = 0
-        self.timer_running = False
-        
-        # Thread process loop ID managers to prevent logic bleeding when switching views
-        self.animation_loop_id = None
-        self.playlist_loop_id = None
-        self.countdown_loop_id = None
-        
-        # Boot up directly onto Screen 1: The Login Canvas view panel
-        self.init_login_screen()
-
-    # ---------------------------------------------------------
-    # UTILITY: BACKEND VISION TEAM INTEGRATION GATEWAY
-    # ---------------------------------------------------------
-    def trigger_vision_drowsy_alert(self):
-        """
-        GATEWAY FOR YOUR TEAMMATE: 
-        Your vision processing team can call this exact function from their script 
-        whenever their camera analytics track closed eyes or heavy slouching markers!
-        """
-        if self.playlist_loop_id:
-            self.after_cancel(self.playlist_loop_id)
-            self.playlist_loop_id = None
-        self.timer_running = False
-        if self.countdown_loop_id:
-            self.after_cancel(self.countdown_loop_id)
-            self.countdown_loop_id = None
-            
-        self.kill_active_animation_loops()
-        
-        try: self.home_view.pack_forget()
-        except Exception: pass
-        try: self.todo_view.pack_forget()
-        except Exception: pass
-        try: self.focus_fullscreen_frame.destroy()
-        except Exception: pass
-        
-        self.sidebar.grid_forget()
-        self.stage.grid_forget()
-        
-        # Render override safety threat overlay grid canvas container
-        self.alert_frame = ctk.CTkFrame(self, fg_color="#0F1219")
-        self.alert_frame.grid(row=0, column=0, columnspan=2, sticky="nsew")
-        
-        self.alert_media_render = ctk.CTkLabel(self.alert_frame, text="")
-        self.alert_media_render.place(relx=0, rely=0, relwidth=1, relheight=1)
-        
-        # Phase 1: Switch frames instantly to the initial visual transition asset (tenor23.gif)
-        self.load_and_play_gif("tenor23.gif", self.alert_media_render, (980, 680))
-        
-        # Phase 2: After 3.5 seconds, roll over into the high-intensity storm loop (tenor6.gif) and popup text
-        self.after(3500, self.engage_storm_alert_phase)
-
-    def engage_storm_alert_phase(self):
-        """Swaps overlay canvas views to storm visuals and drops the coaching box popup."""
-        if hasattr(self, 'alert_media_render') and self.alert_frame.winfo_exists():
-            self.load_and_play_gif("tenor6.gif", self.alert_media_render, (980, 680))
-            
-            # Premium translucent frosted overlay warning message block box
-            popup_card = ctk.CTkFrame(self.alert_frame, width=440, height=240, fg_color="rgba(30, 15, 25, 0.55)", corner_radius=16, border_width=1, border_color="rgba(231, 76, 60, 0.4)")
-            popup_card.place(relx=0.5, rely=0.5, anchor="center")
-            popup_card.pack_propagate(False)
-            
-            ctk.CTkLabel(popup_card, text="🚨 Fatigue Detected!", font=("Arial", 22, "bold"), text_color="#E74C3C").pack(pady=(25, 10))
-            ctk.CTkLabel(popup_card, text="You look a little sleepy! Stand up, stretch, move around a bit, and let's get your focus mode back.", font=("Arial", 14), text_color="#ECF0F1", justify="center", wraplength=380).pack(pady=10)
-            
-            ctk.CTkButton(popup_card, text="Acknowledge & Clear", font=("Arial", 13, "bold"), fg_color="#C0392B", hover_color="#A93226", width=200, height=38, corner_radius=8, command=self.clear_vision_alert_system).pack(side="bottom", pady=20)
-
-    def clear_vision_alert_system(self):
-        """Dismantles threat layers and returns safely back home."""
-        self.kill_active_animation_loops()
-        self.alert_frame.destroy()
-        
-        # Re-grid original layout display splits architectures
-        self.sidebar.grid(row=0, column=0, sticky="nsew")
-        self.stage.grid(row=0, column=1, sticky="nsew", padx=25, pady=25)
-        self.show_home_view()
-
-    # ---------------------------------------------------------
-    # SCREEN 1: THE LOGIN CANVAS WORKSPACE
-    # ---------------------------------------------------------
-    def init_login_screen(self):
-        self.login_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.login_frame.grid(row=0, column=0, sticky="nsew")
-        
-        self.bg_label = ctk.CTkLabel(self.login_frame, text="")
-        self.bg_label.place(relx=0, rely=0, relwidth=1, relheight=1)
-        
-        # Handle all background image variations automatically
-        login_asset = None
-        for ext in [".gif", ".png", ".jpg", ".jpeg"]:
-            if os.path.exists(f"login{ext}"):
-                login_asset = f"login{ext}"
-                break
-                
-        if login_asset:
+        # Load Background File
+        login_asset = "login.jpg"
+        if not os.path.exists(login_asset):
+            for ext in [".jpeg", ".png", ".PNG", ".jpg"]:
+                if os.path.exists(f"login{ext}"):
+                    login_asset = f"login{ext}"
+                    break
+                    
+        if os.path.exists(login_asset):
             try:
-                raw_bg = Image.open(login_asset)
-                self.bg_img = ImageTk.PhotoImage(raw_bg.resize((980, 680), Image.Resampling.LANCZOS))
-                self.bg_label.configure(image=self.bg_img)
-            except Exception:
-                self.login_frame.configure(fg_color="#141923")
+                raw_image = Image.open(login_asset)
+                resized_image = raw_image.resize((980, 680), Image.Resampling.LANCZOS)
+                self.assets["bg_img"] = ImageTk.PhotoImage(resized_image)
+                self.bg_image_id = self.main_canvas.create_image(0, 0, image=self.assets["bg_img"], anchor="nw")
+                print(f"👉 SYSTEM LOG: Found and loaded background image: {login_asset}")
+            except Exception as e:
+                print(f"❌ SYSTEM ERROR Loading Image: {e}")
         else:
-            self.login_frame.configure(fg_color="#141923")
+            self.bg_image_id = None
+            print("⚠️ SYSTEM LOG: No 'login.jpg' image found. Using default dark background.")
+
+        self.render_login_screen()
+
+    def render_login_screen(self):
+        self.current_screen = "login"
+        
+        # Draw Interface Box
+        overlay_pixel = Image.new("RGBA", (1, 1), (30, 34, 43, 140)) 
+        self.assets["login_card"] = ImageTk.PhotoImage(overlay_pixel.resize((380, 300)))
+        card_x, card_y = 490, 238
+        
+        self.main_canvas.create_image(card_x, card_y, image=self.assets["login_card"], anchor="center")
+        self.main_canvas.create_rectangle(card_x-190, card_y-150, card_x+190, card_y+150, outline="#2C323F", width=1)
+        
+        self.main_canvas.create_text(card_x, card_y-95, text="OASIS", font=("Georgia", 32, "italic", "bold"), fill="#FF69B4", anchor="center")
+        self.main_canvas.create_text(card_x, card_y-45, text="Enter your name", font=("Arial", 12), fill="#A0AAB5", anchor="center")
+        
+        # Input Text Properties
+        self.main_canvas.create_rectangle(card_x-130, card_y-3, card_x+130, card_y+33, fill="#0F1219", outline="#2C323F", width=1)
+        self.display_text_id = self.main_canvas.create_text(card_x, card_y+15, text=self.entered_name, font=("Arial", 13), fill="white", anchor="center")
+        self.cursor_id = self.main_canvas.create_line(card_x, card_y+4, card_x, card_y+26, fill="white", width=2)
+        
+        # Login Button UI
+        self.login_btn_bg = self.main_canvas.create_rectangle(card_x-110, card_y+56, card_x+110, card_y+94, fill="#FF69B4", outline="", width=0)
+        self.login_btn_txt = self.main_canvas.create_text(card_x, card_y+75, text="Enter Workspace →", font=("Arial", 12, "bold"), fill="white", anchor="center")
+        
+        # Event Listeners
+        self.bind("<Key>", self.handle_login_keypress)
+        self.bind("<BackSpace>", self.handle_login_backspace)
+        
+        # Action Triggers wrapped inside safe validation routes
+        self.main_canvas.tag_bind(self.login_btn_bg, "<Button-1>", self.safe_switch_trigger)
+        self.main_canvas.tag_bind(self.login_btn_txt, "<Button-1>", self.safe_switch_trigger)
+        
+        self.update_login_input_ui()
+        self.start_cursor_blink()
+
+    def handle_login_keypress(self, event):
+        if len(event.char) == 1 and ord(event.char) >= 32:
+            if len(self.entered_name) < 24:
+                self.entered_name += event.char
+                self.update_login_input_ui()
+
+    def handle_login_backspace(self, event):
+        self.entered_name = self.entered_name[:-1]
+        self.update_login_input_ui()
+
+    def update_login_input_ui(self):
+        self.main_canvas.itemconfig(self.display_text_id, text=self.entered_name)
+        bbox = self.main_canvas.bbox(self.display_text_id)
+        if bbox and self.entered_name:
+            text_width = bbox - bbox
+            cursor_x = 490 + (text_width // 2) + 4
+        else:
+            cursor_x = 490
+        self.main_canvas.coords(self.cursor_id, cursor_x, 238+4, cursor_x, 238+26)
+
+    def start_cursor_blink(self):
+        if self.current_screen == "login":
+            self.cursor_visible = not self.cursor_visible
+            state = "normal" if self.cursor_visible else "hidden"
+            try:
+                self.main_canvas.itemconfig(self.cursor_id, state=state)
+            except:
+                return
+            self.blink_job = self.after(500, self.start_cursor_blink)
+
+    def safe_switch_trigger(self, event=None):
+        """CRITICAL WATCHDOG: Captures hidden runtime bugs preventing transitions."""
+        print("👉 SYSTEM LOG: Enter Workspace button clicked! Attempting transition...")
+        try:
+            self.switch_to_workspace()
+        except Exception as crash_error:
+            print("\n❌ ❌ CRITICAL WORKSPACE CRASH DETECTED ❌ ❌")
+            print(f"Error Type: {type(crash_error).__name__}")
+            print(f"Error Message Details: {crash_error}\n")
+
+    def switch_to_workspace(self):
+        self.current_screen = "workspace"
+        
+        # Stop typing blinker
+        if self.blink_job:
+            self.after_cancel(self.blink_job)
+            self.blink_job = None
             
-        # Translucent glass design card (0.45 opacity) located vertically slightly up (rely=0.42)
-        login_card = ctk.CTkFrame(self.login_frame, width=380, height=300, fg_color="rgba(20, 25, 35, 0.45)", corner_radius=16, border_width=1, border_color="rgba(255, 255, 255, 0.15)")
-        login_card.place(relx=0.5, rely=0.42, anchor="center")
-        login_card.pack_propagate(False)
+        # Clean up login box widgets safely
+        for item in self.main_canvas.find_all():
+            if item != self.bg_image_id:
+                self.main_canvas.delete(item)
+        self.unbind("<Key>")
+        self.unbind("<BackSpace>")
         
-        ctk.CTkLabel(login_card, text="OASIS", font=("Georgia", 34, "italic", "bold"), text_color="#FF69B4").pack(pady=(35, 10))
-        ctk.CTkLabel(login_card, text="Enter your name to unlock alignment", font=("Arial", 12), text_color="#A0AAB5").pack(pady=(0, 20))
+        # Keep background at base
+        if self.bg_image_id:
+            self.main_canvas.tag_lower(self.bg_image_id)
+            
+        # Draw Side Navbar
+        sidebar_pixel = Image.new("RGBA", (1, 1), (20, 24, 33, 215)) 
+        self.assets["sidebar_bg"] = ImageTk.PhotoImage(sidebar_pixel.resize((220, 680)))
+        self.main_canvas.create_image(0, 0, image=self.assets["sidebar_bg"], anchor="nw")
+        self.main_canvas.create_line(220, 0, 220, 680, fill="#2C323F", width=1)
         
-        self.name_entry = ctk.CTkEntry(login_card, placeholder_text="Your Name...", width=260, height=40, fg_color="#0F1219", border_color="#202836", text_color="white")
-        self.name_entry.pack(pady=10)
-        self.name_entry.bind("<Return>", lambda e: self.process_login())
+        self.main_canvas.create_text(110, 45, text="OASIS", font=("Georgia", 24, "italic", "bold"), fill="#FF69B4", anchor="center")
+        self.main_canvas.create_text(35, 130, text="🏠 Home", font=("Arial", 12, "bold"), fill="white", anchor="nw")
+        self.main_canvas.create_text(35, 185, text="📋 To-Do List", font=("Arial", 12), fill="#A0AAB5", anchor="nw")
         
-        ctk.CTkButton(login_card, text="Enter Workspace →", font=("Arial", 13, "bold"), fg_color="#FF69B4", hover_color="#FF1493", width=260, height=40, corner_radius=8, command=self.process_login).pack(pady=15)
+        # Draw Top Timer Strip Bar
+        top_strip_pixel = Image.new("RGBA", (1, 1), (30, 34, 43, 160))
+        self.assets["top_bar_bg"] = ImageTk.PhotoImage(top_strip_pixel.resize((760, 65)))
+        self.main_canvas.create_image(220, 0, image=self.assets["top_bar_bg"], anchor="nw")
+        self.main_canvas.create_line(220, 65, 980, 65, fill="#2C323F", width=1)
+        
+        start_x = 250
+        y_center = 32
+        
+        self.main_canvas.create_text(start_x, y_center, text="Focus Timer:", font=("Arial", 12, "bold"), fill="white", anchor="w")
+        
+        # Draw Native OS Selection Dropdowns
+        self.hours_var = tk.StringVar(self)
+        self.hours_var.set("00")
+        self.mins_var = tk.StringVar(self)
+        self.mins_var.set("25")
+        
+        hours_menu = tk.OptionMenu(self, self.hours_var, *[f"{i:02d}" for i in range(13)])
+        mins_menu = tk.OptionMenu(self, self.mins_var, *[f"{i:02d}" for i in range(0, 60, 5)])
+        
+        for menu in (hours_menu, mins_menu):
+            menu.config(bg="#0F1219", fg="white", activebackground="#2C323F", activeforeground="white", highlightthickness=1, highlightbackground="#2C323F", bd=0, indicatoron=0)
+            menu["menu"].config(bg="#0F1219", fg="white", selectcolor="#FF69B4", activebackground="#2C323F")
+            
+        self.main_canvas.create_window(start_x + 115, y_center, window=hours_menu, width=50, height=28, anchor="w")
+        self.main_canvas.create_window(start_x + 195, y_center, window=mins_menu, width=50, height=28, anchor="w")
+        
+        # Top Small Rectangular Start Button
+        btn_start_x = start_x + 290
+        self.main_canvas.create_rectangle(btn_start_x, y_center-14, btn_start_x+110, y_center+14, fill="#FF69B4", outline="", width=0)
+        self.main_canvas.create_text(btn_start_x+55, y_center, text="Start ⚡", font=("Arial", 11, "bold"), fill="white", anchor="center")
+        
+        print("👉 SYSTEM LOG: Successfully switched to workspace hub view window frame layout!")
 
-    def process_login(self):
-        input_val = self.name_entry.get().strip()
-        if input_val:
-            self.user_name = input_val
-        self.login_frame.destroy()
-        self.init_main_app_workspace()
-
-    # ---------------------------------------------------------
-    # MAIN WORKSPACE CONTROL ARCHITECTURE
-    # ---------------------------------------------------------
-    def init_main_app_workspace(self):
-        self.grid_columnconfigure(0, weight=0)
-        self.grid_columnconfigure(1, weight=1)
-        
-        # Core Sidebar Panel Navigation Control Bar
-        self.sidebar = ctk.CTkFrame(self, width=240, corner_radius=0, fg_color="#141923")
-        self.sidebar.grid(row=0, column=0, sticky="nsew")
-        self.sidebar.grid_propagate(False)
-        
-        ctk.CTkLabel(self.sidebar, text="Oasis", font=("Georgia", 36, "italic"), text_color="#FF69B4").pack(pady=(35, 25), padx=20)
-        
-        self.btn_home = ctk.CTkButton(self.sidebar, text="📊 Home Dashboard", font=("Arial", 14, "bold"), fg_color="#FF69B4", text_color="white", hover_color="#FF1493", anchor="w", height=42, corner_radius=8, command=self.show_home_view)
-        self.btn_home.pack(fill="x", padx=15, pady=6)
-        
-        self.btn_todo = ctk.CTkButton(self.sidebar, text="📋 To-Do List Board", font=("Arial", 14), fg_color="transparent", text_color="#A0AAB5", hover_color="#202836", anchor="w", height=42, corner_radius=8, command=self.show_todo_view)
-        self.btn_todo.pack(fill="x", padx=15, pady=6)
-        
-        # Test widget element panel anchored directly at bottom of sidebar frame layout matrices
-        simulation_box = ctk.CTkFrame(self.sidebar, fg_color="#1C2330", corner_radius=10, height=90)
-        simulation_box.pack(side="bottom", fill="x", padx=15, pady=25)
-        simulation_box.pack_propagate(False)
-        ctk.CTkButton(simulation_box, text="Simulate Drowsiness Alert", font=("Arial", 11, "bold"), fg_color="#C0392B", hover_color="#A93226", height=32, command=self.trigger_vision_drowsy_alert).pack(expand=True, padx=10)
-        
-        # Main Display View Deck Frame Stage
-        self.stage = ctk.CTkFrame(self, fg_color="transparent")
-        self.stage.grid(row=0, column=1, sticky="nsew", padx=25, pady=25)
-        
-        self.build_home_view()
-        self.build_todo_view()
-        self.show_home_view()
-
-    # ---------------------------------------------------------
-    # SCREEN 2: THE DASHBOARD WORKSPACE (CAT VIEW & CONFIG TIMER)
-    # ---------------------------------------------------------
-    def build_home_view(self):
-        self.home_view = ctk.CTkFrame(self.stage, fg_color="transparent")
-        
+if __name__ == "__main__":
+    app = OasisDiagnosticApp()
+    app.mainloop()
