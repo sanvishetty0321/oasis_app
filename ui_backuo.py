@@ -157,4 +157,6 @@ class OasisInterface(tk.Tk):
         tk.Label(self.modal_overlay, text=" Screen Temporarily Locked for Mental Reset", font=("Arial", 22, "bold"), fg="#E74C3C", bg="#0D1117").pack(pady=(180, 10))
         tk.Label(self.modal_overlay, text="⭕", font=("Arial", 90), fg="#3498DB", bg="#0D1117").pack(pady=15)
         tk.Label(self.modal_overlay, text="Follow the breathing ring guide. Relax your eyes.", font=("Arial", 14), fg="#BDC3C7", bg="#0D1117").pack(pady=5)
-        
+        if __name__ == "__main__":
+    app = OasisInterface()
+    app.mainloop()
