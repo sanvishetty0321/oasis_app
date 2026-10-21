@@ -11,28 +11,28 @@ class OasisEngine(ctk.CTk):
         
         self.title("OASIS - Premium Desktop Interface Engine")
         self.geometry("980x680")
-        self.configure(fg_color="#0F1219")  # Midnight canvas
+        self.configure(fg_color="#0F1219")  # Midnight canvas background
         
-        # Base application grid layout matching master proportions
+        # Base application grid window layout configuration matrices
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         
-        # Core data tracking metrics states
+        # Core data tracking analytics metrics states
         self.user_name = "Sanvi"
         self.gif_frames = []
         self.current_frame = 0
         self.playlist_index = 0
         
-        # Timer tracking state engines
+        # Countdown timing tracker states
         self.total_seconds_left = 0
         self.timer_running = False
         
-        # Thread loop ID managers to safely clear loops when switching screens
+        # Thread process loop ID managers to prevent logic bleeding when switching views
         self.animation_loop_id = None
         self.playlist_loop_id = None
         self.countdown_loop_id = None
         
-        # Start directly on Screen 1: Login Canvas View
+        # Boot up directly onto Screen 1: The Login Canvas view panel
         self.init_login_screen()
 
     # ---------------------------------------------------------
@@ -41,8 +41,8 @@ class OasisEngine(ctk.CTk):
     def trigger_vision_drowsy_alert(self):
         """
         GATEWAY FOR YOUR TEAMMATE: 
-        Your vision processing team can call this exact function from their code 
-        when their camera scripts detect closed eyes or heavy slouching!
+        Your vision processing team can call this exact function from their script 
+        whenever their camera analytics track closed eyes or heavy slouching markers!
         """
         if self.playlist_loop_id:
             self.after_cancel(self.playlist_loop_id)
@@ -64,20 +64,25 @@ class OasisEngine(ctk.CTk):
         self.sidebar.grid_forget()
         self.stage.grid_forget()
         
+        # Render override safety threat overlay grid canvas container
         self.alert_frame = ctk.CTkFrame(self, fg_color="#0F1219")
         self.alert_frame.grid(row=0, column=0, columnspan=2, sticky="nsew")
         
         self.alert_media_render = ctk.CTkLabel(self.alert_frame, text="")
         self.alert_media_render.place(relx=0, rely=0, relwidth=1, relheight=1)
         
+        # Phase 1: Switch frames instantly to the initial visual transition asset (tenor23.gif)
         self.load_and_play_gif("tenor23.gif", self.alert_media_render, (980, 680))
+        
+        # Phase 2: After 3.5 seconds, roll over into the high-intensity storm loop (tenor6.gif) and popup text
         self.after(3500, self.engage_storm_alert_phase)
 
     def engage_storm_alert_phase(self):
+        """Swaps overlay canvas views to storm visuals and drops the coaching box popup."""
         if hasattr(self, 'alert_media_render') and self.alert_frame.winfo_exists():
             self.load_and_play_gif("tenor6.gif", self.alert_media_render, (980, 680))
             
-            # Frosted glass pop-up card box
+            # Premium translucent frosted overlay warning message block box
             popup_card = ctk.CTkFrame(self.alert_frame, width=440, height=240, fg_color="rgba(30, 15, 25, 0.55)", corner_radius=16, border_width=1, border_color="rgba(231, 76, 60, 0.4)")
             popup_card.place(relx=0.5, rely=0.5, anchor="center")
             popup_card.pack_propagate(False)
@@ -88,14 +93,17 @@ class OasisEngine(ctk.CTk):
             ctk.CTkButton(popup_card, text="Acknowledge & Clear", font=("Arial", 13, "bold"), fg_color="#C0392B", hover_color="#A93226", width=200, height=38, corner_radius=8, command=self.clear_vision_alert_system).pack(side="bottom", pady=20)
 
     def clear_vision_alert_system(self):
+        """Dismantles threat layers and returns safely back home."""
         self.kill_active_animation_loops()
         self.alert_frame.destroy()
+        
+        # Re-grid original layout display splits architectures
         self.sidebar.grid(row=0, column=0, sticky="nsew")
         self.stage.grid(row=0, column=1, sticky="nsew", padx=25, pady=25)
         self.show_home_view()
 
     # ---------------------------------------------------------
-    # SCREEN 1: LOGIN FRAMEWORK
+    # SCREEN 1: THE LOGIN CANVAS WORKSPACE
     # ---------------------------------------------------------
     def init_login_screen(self):
         self.login_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -104,6 +112,7 @@ class OasisEngine(ctk.CTk):
         self.bg_label = ctk.CTkLabel(self.login_frame, text="")
         self.bg_label.place(relx=0, rely=0, relwidth=1, relheight=1)
         
+        # Handle all background image variations automatically
         login_asset = None
         for ext in [".gif", ".png", ".jpg", ".jpeg"]:
             if os.path.exists(f"login{ext}"):
@@ -120,7 +129,7 @@ class OasisEngine(ctk.CTk):
         else:
             self.login_frame.configure(fg_color="#141923")
             
-        # Relocated slightly upward (rely=0.42 instead of 0.5) and applied a frosted glass style (0.45 opacity)
+        # Translucent glass design card (0.45 opacity) located vertically slightly up (rely=0.42)
         login_card = ctk.CTkFrame(self.login_frame, width=380, height=300, fg_color="rgba(20, 25, 35, 0.45)", corner_radius=16, border_width=1, border_color="rgba(255, 255, 255, 0.15)")
         login_card.place(relx=0.5, rely=0.42, anchor="center")
         login_card.pack_propagate(False)
@@ -142,16 +151,15 @@ class OasisEngine(ctk.CTk):
         self.init_main_app_workspace()
 
     # ---------------------------------------------------------
-    # MAIN WORKSPACE BASE STRUCTURE (SIDEBAR AND WINDOW CONTROLLER)
+    # MAIN WORKSPACE CONTROL ARCHITECTURE
     # ---------------------------------------------------------
     def init_main_app_workspace(self):
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=1)
         
-        # Premium Sidebar Navigation Bar
+        # Core Sidebar Panel Navigation Control Bar
         self.sidebar = ctk.CTkFrame(self, width=240, corner_radius=0, fg_color="#141923")
         self.sidebar.grid(row=0, column=0, sticky="nsew")
-        self.sidebar_frame = self.sidebar
         self.sidebar.grid_propagate(False)
         
         ctk.CTkLabel(self.sidebar, text="Oasis", font=("Georgia", 36, "italic"), text_color="#FF69B4").pack(pady=(35, 25), padx=20)
@@ -162,11 +170,13 @@ class OasisEngine(ctk.CTk):
         self.btn_todo = ctk.CTkButton(self.sidebar, text="📋 To-Do List Board", font=("Arial", 14), fg_color="transparent", text_color="#A0AAB5", hover_color="#202836", anchor="w", height=42, corner_radius=8, command=self.show_todo_view)
         self.btn_todo.pack(fill="x", padx=15, pady=6)
         
+        # Test widget element panel anchored directly at bottom of sidebar frame layout matrices
         simulation_box = ctk.CTkFrame(self.sidebar, fg_color="#1C2330", corner_radius=10, height=90)
         simulation_box.pack(side="bottom", fill="x", padx=15, pady=25)
         simulation_box.pack_propagate(False)
         ctk.CTkButton(simulation_box, text="Simulate Drowsiness Alert", font=("Arial", 11, "bold"), fg_color="#C0392B", hover_color="#A93226", height=32, command=self.trigger_vision_drowsy_alert).pack(expand=True, padx=10)
         
+        # Main Display View Deck Frame Stage
         self.stage = ctk.CTkFrame(self, fg_color="transparent")
         self.stage.grid(row=0, column=1, sticky="nsew", padx=25, pady=25)
         
@@ -175,21 +185,8 @@ class OasisEngine(ctk.CTk):
         self.show_home_view()
 
     # ---------------------------------------------------------
-    # SCREEN 2: HOME DASHBOARD (WITH CAT GIF & TIMER CONFIG)
+    # SCREEN 2: THE DASHBOARD WORKSPACE (CAT VIEW & CONFIG TIMER)
     # ---------------------------------------------------------
     def build_home_view(self):
         self.home_view = ctk.CTkFrame(self.stage, fg_color="transparent")
         
-        self.lbl_welcome = ctk.CTkLabel(self.home_view, text=f"Welcome Back, {self.user_name}", font=("Georgia", 28, "bold"), text_color="#FF69B4")
-        self.lbl_welcome.pack(anchor="w", pady=(5, 2))
-        ctk.CTkLabel(self.home_view, text="Select your core target hours and sink into alignment.", font=("Arial", 13), text_color="#627280").pack(anchor="w", pady=(0, 15))
-        
-        row_content = ctk.CTkFrame(self.home_view, fg_color="transparent")
-        row_content.pack(fill="both", expand=True, pady=10)
-        
-        # Translucent frosted design matching your blueprint
-        picker_card = ctk.CTkFrame(row_content, fg_color="rgba(20, 25, 35, 0.45)", corner_radius=16, border_width=1, border_color="rgba(255, 255, 255, 0.12)")
-        picker_card.pack(side="left", fill="both", expand=True, padx=(0, 10))
-        
-
-
