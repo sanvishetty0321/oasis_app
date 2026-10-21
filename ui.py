@@ -1,183 +1,195 @@
+import os
 import customtkinter as ctk
+from PIL import Image, ImageTk
 
 # Set up clean dark-mode base layers
 ctk.set_appearance_mode("dark")
 
-class OasisInterface(ctk.CTk):
+class OasisEngine(ctk.CTk):
     def __init__(self):
         super().__init__()
         
         self.title("OASIS - Premium Desktop Interface Engine")
         self.geometry("980x680")
-        self.configure(fg_color="#0F1219")  # Luxurious midnight black canvas
+        self.configure(fg_color="#0F1219")  # Midnight canvas
         
-        # Grid layout for elegant proportions
-        self.grid_columnconfigure(1, weight=1)
+        # Base application grid layout matching master proportions
+        self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         
-        # ---------------------------------------------------------
-        # 1. LUXURIOUS PINK SIDEBAR NAV PANEL
-        # ---------------------------------------------------------
-        self.sidebar_frame = ctk.CTkFrame(self, width=240, corner_radius=0, fg_color="#141923")
-        self.sidebar_frame.grid(row=0, column=0, sticky="nsew")
-        self.sidebar_frame.grid_propagate(False)
+        # Core data tracking metrics states
+        self.user_name = "Sanvi"
+        self.gif_frames = []
+        self.current_frame = 0
+        self.playlist_index = 0
         
-        # Premium Styled Custom Pink Logo Header Block
-        self.logo_label = ctk.CTkLabel(
-            self.sidebar_frame, 
-            text="Oasis", 
-            font=("Georgia", 36, "italic"), 
-            text_color="#FF69B4"  # Vibrant Premium Pink Accent Brand Color
-        )
-        self.logo_label.pack(pady=(35, 25), padx=20)
+        # Timer tracking state engines
+        self.total_seconds_left = 0
+        self.timer_running = False
         
-        # Premium High-Contrast Sidebar Menu Action Items
-        self.btn_home = ctk.CTkButton(
-            self.sidebar_frame, text="📊 Home Dashboard", font=("Arial", 14, "bold"),
-            fg_color="#FF69B4", text_color="white", hover_color="#FF1493",
-            anchor="w", height=42, corner_radius=8, command=self.show_home
-        )
+        # Thread loop ID managers to safely clear loops when switching screens
+        self.animation_loop_id = None
+        self.playlist_loop_id = None
+        self.countdown_loop_id = None
+        
+        # Start directly on Screen 1: Login Canvas View
+        self.init_login_screen()
+
+    # ---------------------------------------------------------
+    # UTILITY: BACKEND VISION TEAM INTEGRATION GATEWAY
+    # ---------------------------------------------------------
+    def trigger_vision_drowsy_alert(self):
+        """
+        GATEWAY FOR YOUR TEAMMATE: 
+        Your vision processing team can call this exact function from their code 
+        when their camera scripts detect closed eyes or heavy slouching!
+        """
+        if self.playlist_loop_id:
+            self.after_cancel(self.playlist_loop_id)
+            self.playlist_loop_id = None
+        self.timer_running = False
+        if self.countdown_loop_id:
+            self.after_cancel(self.countdown_loop_id)
+            self.countdown_loop_id = None
+            
+        self.kill_active_animation_loops()
+        
+        try: self.home_view.pack_forget()
+        except Exception: pass
+        try: self.todo_view.pack_forget()
+        except Exception: pass
+        try: self.focus_fullscreen_frame.destroy()
+        except Exception: pass
+        
+        self.sidebar.grid_forget()
+        self.stage.grid_forget()
+        
+        self.alert_frame = ctk.CTkFrame(self, fg_color="#0F1219")
+        self.alert_frame.grid(row=0, column=0, columnspan=2, sticky="nsew")
+        
+        self.alert_media_render = ctk.CTkLabel(self.alert_frame, text="")
+        self.alert_media_render.place(relx=0, rely=0, relwidth=1, relheight=1)
+        
+        self.load_and_play_gif("tenor23.gif", self.alert_media_render, (980, 680))
+        self.after(3500, self.engage_storm_alert_phase)
+
+    def engage_storm_alert_phase(self):
+        if hasattr(self, 'alert_media_render') and self.alert_frame.winfo_exists():
+            self.load_and_play_gif("tenor6.gif", self.alert_media_render, (980, 680))
+            
+            # Frosted glass pop-up card box
+            popup_card = ctk.CTkFrame(self.alert_frame, width=440, height=240, fg_color="rgba(30, 15, 25, 0.55)", corner_radius=16, border_width=1, border_color="rgba(231, 76, 60, 0.4)")
+            popup_card.place(relx=0.5, rely=0.5, anchor="center")
+            popup_card.pack_propagate(False)
+            
+            ctk.CTkLabel(popup_card, text="🚨 Fatigue Detected!", font=("Arial", 22, "bold"), text_color="#E74C3C").pack(pady=(25, 10))
+            ctk.CTkLabel(popup_card, text="You look a little sleepy! Stand up, stretch, move around a bit, and let's get your focus mode back.", font=("Arial", 14), text_color="#ECF0F1", justify="center", wraplength=380).pack(pady=10)
+            
+            ctk.CTkButton(popup_card, text="Acknowledge & Clear", font=("Arial", 13, "bold"), fg_color="#C0392B", hover_color="#A93226", width=200, height=38, corner_radius=8, command=self.clear_vision_alert_system).pack(side="bottom", pady=20)
+
+    def clear_vision_alert_system(self):
+        self.kill_active_animation_loops()
+        self.alert_frame.destroy()
+        self.sidebar.grid(row=0, column=0, sticky="nsew")
+        self.stage.grid(row=0, column=1, sticky="nsew", padx=25, pady=25)
+        self.show_home_view()
+
+    # ---------------------------------------------------------
+    # SCREEN 1: LOGIN FRAMEWORK
+    # ---------------------------------------------------------
+    def init_login_screen(self):
+        self.login_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.login_frame.grid(row=0, column=0, sticky="nsew")
+        
+        self.bg_label = ctk.CTkLabel(self.login_frame, text="")
+        self.bg_label.place(relx=0, rely=0, relwidth=1, relheight=1)
+        
+        login_asset = None
+        for ext in [".gif", ".png", ".jpg", ".jpeg"]:
+            if os.path.exists(f"login{ext}"):
+                login_asset = f"login{ext}"
+                break
+                
+        if login_asset:
+            try:
+                raw_bg = Image.open(login_asset)
+                self.bg_img = ImageTk.PhotoImage(raw_bg.resize((980, 680), Image.Resampling.LANCZOS))
+                self.bg_label.configure(image=self.bg_img)
+            except Exception:
+                self.login_frame.configure(fg_color="#141923")
+        else:
+            self.login_frame.configure(fg_color="#141923")
+            
+        # Relocated slightly upward (rely=0.42 instead of 0.5) and applied a frosted glass style (0.45 opacity)
+        login_card = ctk.CTkFrame(self.login_frame, width=380, height=300, fg_color="rgba(20, 25, 35, 0.45)", corner_radius=16, border_width=1, border_color="rgba(255, 255, 255, 0.15)")
+        login_card.place(relx=0.5, rely=0.42, anchor="center")
+        login_card.pack_propagate(False)
+        
+        ctk.CTkLabel(login_card, text="OASIS", font=("Georgia", 34, "italic", "bold"), text_color="#FF69B4").pack(pady=(35, 10))
+        ctk.CTkLabel(login_card, text="Enter your name to unlock alignment", font=("Arial", 12), text_color="#A0AAB5").pack(pady=(0, 20))
+        
+        self.name_entry = ctk.CTkEntry(login_card, placeholder_text="Your Name...", width=260, height=40, fg_color="#0F1219", border_color="#202836", text_color="white")
+        self.name_entry.pack(pady=10)
+        self.name_entry.bind("<Return>", lambda e: self.process_login())
+        
+        ctk.CTkButton(login_card, text="Enter Workspace →", font=("Arial", 13, "bold"), fg_color="#FF69B4", hover_color="#FF1493", width=260, height=40, corner_radius=8, command=self.process_login).pack(pady=15)
+
+    def process_login(self):
+        input_val = self.name_entry.get().strip()
+        if input_val:
+            self.user_name = input_val
+        self.login_frame.destroy()
+        self.init_main_app_workspace()
+
+    # ---------------------------------------------------------
+    # MAIN WORKSPACE BASE STRUCTURE (SIDEBAR AND WINDOW CONTROLLER)
+    # ---------------------------------------------------------
+    def init_main_app_workspace(self):
+        self.grid_columnconfigure(0, weight=0)
+        self.grid_columnconfigure(1, weight=1)
+        
+        # Premium Sidebar Navigation Bar
+        self.sidebar = ctk.CTkFrame(self, width=240, corner_radius=0, fg_color="#141923")
+        self.sidebar.grid(row=0, column=0, sticky="nsew")
+        self.sidebar_frame = self.sidebar
+        self.sidebar.grid_propagate(False)
+        
+        ctk.CTkLabel(self.sidebar, text="Oasis", font=("Georgia", 36, "italic"), text_color="#FF69B4").pack(pady=(35, 25), padx=20)
+        
+        self.btn_home = ctk.CTkButton(self.sidebar, text="📊 Home Dashboard", font=("Arial", 14, "bold"), fg_color="#FF69B4", text_color="white", hover_color="#FF1493", anchor="w", height=42, corner_radius=8, command=self.show_home_view)
         self.btn_home.pack(fill="x", padx=15, pady=6)
         
-        self.btn_tasks = ctk.CTkButton(
-            self.sidebar_frame, text="📋 To-Do List Task Board", font=("Arial", 14),
-            fg_color="transparent", text_color="#A0AAB5", hover_color="#202836",
-            anchor="w", height=42, corner_radius=8, command=self.show_tasks
-        )
-        self.btn_tasks.pack(fill="x", padx=15, pady=6)
+        self.btn_todo = ctk.CTkButton(self.sidebar, text="📋 To-Do List Board", font=("Arial", 14), fg_color="transparent", text_color="#A0AAB5", hover_color="#202836", anchor="w", height=42, corner_radius=8, command=self.show_todo_view)
+        self.btn_todo.pack(fill="x", padx=15, pady=6)
         
-        self.btn_settings = ctk.CTkButton(
-            self.sidebar_frame, text="⚙️ Settings & Alerts", font=("Arial", 14),
-            fg_color="transparent", text_color="#A0AAB5", hover_color="#202836",
-            anchor="w", height=42, corner_radius=8, command=self.show_settings
-        )
-        self.btn_settings.pack(fill="x", padx=15, pady=6)
+        simulation_box = ctk.CTkFrame(self.sidebar, fg_color="#1C2330", corner_radius=10, height=90)
+        simulation_box.pack(side="bottom", fill="x", padx=15, pady=25)
+        simulation_box.pack_propagate(False)
+        ctk.CTkButton(simulation_box, text="Simulate Drowsiness Alert", font=("Arial", 11, "bold"), fg_color="#C0392B", hover_color="#A93226", height=32, command=self.trigger_vision_drowsy_alert).pack(expand=True, padx=10)
         
-        # Real-time Hardware Analytics Monitor Dock
-        self.status_box = ctk.CTkFrame(self.sidebar_frame, fg_color="#1B2230", corner_radius=10)
-        self.status_box.pack(side="bottom", fill="x", padx=15, pady=30)
+        self.stage = ctk.CTkFrame(self, fg_color="transparent")
+        self.stage.grid(row=0, column=1, sticky="nsew", padx=25, pady=25)
         
-        ctk.CTkLabel(self.status_box, text="LIVE CAM HARDWARE METRICS", font=("Arial", 11, "bold"), text_color="#627280").pack(pady=(12,6))
-        self.posture_lbl = ctk.CTkLabel(self.status_box, text="Posture: ✅ Good Position", font=("Arial", 13), text_color="#2ECC71")
-        self.posture_lbl.pack(anchor="w", padx=15, pady=2)
-        self.focus_lbl = ctk.CTkLabel(self.status_box, text="Status: 🎯 High Focus", font=("Arial", 13), text_color="#FF69B4")
-        self.focus_lbl.pack(anchor="w", padx=15, pady=(2,12))
-
-        # ---------------------------------------------------------
-        # MAIN MULTI-VIEW WORKSPACE STAGE
-        # ---------------------------------------------------------
-        self.stage_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.stage_frame.grid(row=0, column=1, sticky="nsew", padx=25, pady=25)
-        
-        self.init_home_view()
-        self.init_tasks_view()
-        self.init_settings_view()
-        
-        self.show_home()
+        self.build_home_view()
+        self.build_todo_view()
+        self.show_home_view()
 
     # ---------------------------------------------------------
-    # LAYOUT 1: RE-ENGINEERED LUSH HOME DASHBOARD
+    # SCREEN 2: HOME DASHBOARD (WITH CAT GIF & TIMER CONFIG)
     # ---------------------------------------------------------
-    def init_home_view(self):
-        self.home_frame = ctk.CTkFrame(self.stage_frame, fg_color="transparent")
+    def build_home_view(self):
+        self.home_view = ctk.CTkFrame(self.stage, fg_color="transparent")
         
-        # Custom Welcoming Header Block
-        self.greeting = ctk.CTkLabel(self.home_frame, text="Welcome Back, Sanvi", font=("Georgia", 28, "bold"), text_color="#FF69B4")
-        self.greeting.pack(anchor="w", pady=(5,2))
+        self.lbl_welcome = ctk.CTkLabel(self.home_view, text=f"Welcome Back, {self.user_name}", font=("Georgia", 28, "bold"), text_color="#FF69B4")
+        self.lbl_welcome.pack(anchor="w", pady=(5, 2))
+        ctk.CTkLabel(self.home_view, text="Select your core target hours and sink into alignment.", font=("Arial", 13), text_color="#627280").pack(anchor="w", pady=(0, 15))
         
-        self.sub_g = ctk.CTkLabel(self.home_frame, text="Your active tracking session is active.", font=("Arial", 13), text_color="#627280")
-        self.sub_g.pack(anchor="w", pady=(0,15))
+        row_content = ctk.CTkFrame(self.home_view, fg_color="transparent")
+        row_content.pack(fill="both", expand=True, pady=10)
         
-        # Premium Performance Metrics Row
-        stats_row = ctk.CTkFrame(self.home_frame, fg_color="transparent")
-        stats_row.pack(fill="x", pady=5)
+        # Translucent frosted design matching your blueprint
+        picker_card = ctk.CTkFrame(row_content, fg_color="rgba(20, 25, 35, 0.45)", corner_radius=16, border_width=1, border_color="rgba(255, 255, 255, 0.12)")
+        picker_card.pack(side="left", fill="both", expand=True, padx=(0, 10))
         
-        c1 = ctk.CTkFrame(stats_row, height=85, fg_color="#141923", corner_radius=12); c1.pack(side="left", expand=True, fill="both", padx=(0,12))
-        ctk.CTkLabel(c1, text="Total Active Focus Time", font=("Arial", 12, "bold"), text_color="#627280").pack(pady=(12,2))
-        ctk.CTkLabel(c1, text="2.5 Hours", font=("Arial", 22, "bold"), text_color="white").pack()
-        
-        c2 = ctk.CTkFrame(stats_row, height=85, fg_color="#141923", corner_radius=12); c2.pack(side="left", expand=True, fill="both", padx=12)
-        ctk.CTkLabel(c2, text="Completed Milestone Goals", font=("Arial", 12, "bold"), text_color="#627280").pack(pady=(12,2))
-        ctk.CTkLabel(c2, text="4 Tasks", font=("Arial", 22, "bold"), text_color="#FF69B4").pack()
-
-        # 🪐 MASSIVE IMMERSIVE PLANT ECOSYSTEM BOX
-        self.garden_box = ctk.CTkFrame(self.home_frame, fg_color="#141923", corner_radius=16, border_width=1, border_color="#202836")
-        self.garden_box.pack(fill="both", expand=True, pady=15)
-        
-        # Animated Emojis Cluster representing your rich garden mix
-        self.plant_render = ctk.CTkLabel(
-            self.garden_box, 
-            text="🌹 🌻 🌿 🪵 🌸 🌿 🌹\n\n[ DIGITAL TERRARIUM ECOSYSTEM ACTIVE ]\n\nYour Exotic Roses, Sunflowers, and Lavender are blooming beautifully.", 
-            font=("Georgia", 16, "italic"), 
-            text_color="#BDC3C7"
-        )
-        self.plant_render.pack(expand=True)
-        
-        # Active Trigger simulation item
-        ctk.CTkButton(self.home_frame, text="Simulate Camera Slouch Detection Alert", fg_color="#C0392B", hover_color="#A93226", height=38, corner_radius=8, command=self.trigger_frosted_modal).pack(pady=5)
-
-    # ---------------------------------------------------------
-    # LAYOUT 2: TO-DO LIST TASK BOARD SYSTEM
-    # ---------------------------------------------------------
-    def init_tasks_view(self):
-        self.tasks_frame = ctk.CTkFrame(self.stage_frame, fg_color="transparent")
-        ctk.CTkLabel(self.tasks_frame, text="📋 To-Do List Task Board", font=("Arial", 24, "bold"), text_color="white").pack(anchor="w", pady=(10,15))
-        
-        input_row = ctk.CTkFrame(self.tasks_frame, fg_color="transparent")
-        input_row.pack(fill="x", pady=5)
-        
-        self.task_entry = ctk.CTkEntry(input_row, placeholder_text="Type a new focus milestone...", fg_color="#141923", border_color="#202836", height=38)
-        self.task_entry.pack(side="left", fill="x", expand=True, padx=(0,12))
-        
-        ctk.CTkButton(input_row, text="Add Goal", width=110, height=38, fg_color="#FF69B4", hover_color="#FF1493", font=("Arial", 13, "bold"), command=self.append_new_task).pack(side="right")
-        
-        self.task_scrollbox = ctk.CTkScrollableFrame(self.tasks_frame, fg_color="#141923", corner_radius=12, border_width=1, border_color="#202836")
-        self.task_scrollbox.pack(fill="both", expand=True, pady=15)
-
-    def append_new_task(self):
-        val = self.task_entry.get()
-        if val:
-            row = ctk.CTkFrame(self.task_scrollbox, fg_color="transparent")
-            row.pack(fill="x", pady=5)
-            ctk.CTkCheckBox(row, text=val, font=("Arial", 14), text_color="white", fg_color="#FF69B4", hover_color="#FF1493").pack(side="left", padx=5)
-            self.task_entry.delete(0, 'end')
-
-    # ---------------------------------------------------------
-    # LAYOUT 3: SYSTEM HARDWARE PREFERENCES
-    # ---------------------------------------------------------
-    def init_settings_view(self):
-        self.settings_frame = ctk.CTkFrame(self.stage_frame, fg_color="transparent")
-        ctk.CTkLabel(self.settings_frame, text="⚙️ Settings & Alerts", font=("Arial", 24, "bold"), text_color="white").pack(anchor="w", pady=(10, 15))
-        
-        # Hardware Integration Preferences Card
-        config_box = ctk.CTkFrame(self.settings_frame, fg_color="#141923", corner_radius=12, border_width=1, border_color="#202836")
-        config_box.pack(fill="x", pady=10, padx=2)
-        
-        ctk.CTkLabel(config_box, text="HARDWARE & CAMERA MONITORING", font=("Arial", 14, "bold"), text_color="#FF69B4").pack(anchor="w", padx=20, pady=(15, 10))
-        
-        cam_switch = ctk.CTkSwitch(config_box, text="Enable Camera AI Posture Tracking", font=("Arial", 13), fg_color="#202836", progress_color="#FF69B4")
-        cam_switch.pack(anchor="w", padx=20, pady=8)
-        cam_switch.select()
-        
-        alert_switch = ctk.CTkSwitch(config_box, text="Send Real-Time Slouch Haptic Alerts", font=("Arial", 13), fg_color="#202836", progress_color="#FF69B4")
-        alert_switch.pack(anchor="w", padx=20, pady=(8, 20))
-        alert_switch.select()
-
-    # ---------------------------------------------------------
-    # NAVIGATION AND MODAL VIEW CONTROLLERS
-    # ---------------------------------------------------------
-    def clean_workspace(self):
-        self.home_frame.pack_forget()
-        self.tasks_frame.pack_forget()
-        self.settings_frame.pack_forget()
-        
-        # Reset Nav Button Highlights to Unselected Slate Style
-        for btn in [self.btn_home, self.btn_tasks, self.btn_settings]:
-            btn.configure(fg_color="transparent", text_color="#A0AAB5", font=("Arial", 14))
-
-    def show_home(self):
-        self.clean_workspace()
-        self.btn_home.configure(fg_color="#FF69B4", text_color="white", font=("Arial", 14, "bold"))
-        self.home_frame.pack(fill="both", expand=True)
 
 
