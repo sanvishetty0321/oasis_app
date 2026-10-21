@@ -7,10 +7,10 @@ class OasisInterface(tk.Tk):
         
         self.title("OASIS - Interactive Desktop Dashboard")
         self.geometry("950x650")
-        self.configure(bg="#1A1F2C")  # Elegant dark slate gray background
+        self.configure(bg="#1A1F2C")  # Dark slate background
         
         # ---------------------------------------------------------
-        # SIDEBAR PANEL NAVIGATION Layout
+        # SIDEBAR PANEL NAVIGATION
         # ---------------------------------------------------------
         self.sidebar_frame = tk.Frame(self, bg="#11151E", width=220, bd=0)
         self.sidebar_frame.pack(side="left", fill="y")
@@ -19,17 +19,17 @@ class OasisInterface(tk.Tk):
         self.logo_label = tk.Label(self.sidebar_frame, text="OASIS", font=("Arial", 26, "bold"), fg="#2ECC71", bg="#11151E")
         self.logo_label.pack(pady=30)
         
-        # Nav Buttons using standard system styling
-        self.btn_home = tk.Button(self.sidebar_frame, text="📊 Home Dashboard", font=("Arial", 13), fg="white", bg="#1D2433", activebackground="#2ECC71", relief="flat", bd=0, anchor="w", command=self.show_home)
+        # Navigation Buttons
+        self.btn_home = tk.Button(self.sidebar_frame, text="📊 Home Dashboard", font=("Arial", 13), fg="white", bg="#2E4053", relief="flat", bd=0, anchor="w", command=self.show_home)
         self.btn_home.pack(fill="x", padx=10, pady=5, ipady=5)
         
-        self.btn_tasks = tk.Button(self.sidebar_frame, text="📋 Task Manager", font=("Arial", 13), fg="white", bg="#11151E", activebackground="#2ECC71", relief="flat", bd=0, anchor="w", command=self.show_tasks)
+        self.btn_tasks = tk.Button(self.sidebar_frame, text="📋 Task Manager", font=("Arial", 13), fg="white", bg="#11151E", relief="flat", bd=0, anchor="w", command=self.show_tasks)
         self.btn_tasks.pack(fill="x", padx=10, pady=5, ipady=5)
         
-        self.btn_settings = tk.Button(self.sidebar_frame, text="⚙️ Settings & Alerts", font=("Arial", 13), fg="white", bg="#11151E", activebackground="#2ECC71", relief="flat", bd=0, anchor="w", command=self.show_settings)
+        self.btn_settings = tk.Button(self.sidebar_frame, text="⚙️ Settings & Alerts", font=("Arial", 13), fg="white", bg="#11151E", relief="flat", bd=0, anchor="w", command=self.show_settings)
         self.btn_settings.pack(fill="x", padx=10, pady=5, ipady=5)
         
-        # Hardware Status Box Monitor
+        # Real-time Status Box Monitor
         self.status_box = tk.Frame(self.sidebar_frame, bg="#1D2433", padx=10, pady=10)
         self.status_box.pack(side="bottom", fill="x", padx=15, pady=30)
         
@@ -42,7 +42,7 @@ class OasisInterface(tk.Tk):
         self.focus_lbl.pack(anchor="w", pady=2)
 
         # ---------------------------------------------------------
-        # MAIN MULTI-STAGE STAGE VIEWS CONTAINER
+        # MAIN MULTI-VIEW STAGE CONTAINER
         # ---------------------------------------------------------
         self.stage_frame = tk.Frame(self, bg="#1A1F2C")
         self.stage_frame.pack(side="right", expand=True, fill="both", padx=20, pady=20)
@@ -54,7 +54,7 @@ class OasisInterface(tk.Tk):
         self.show_home()
 
     # ---------------------------------------------------------
-    # LAYOUT 1: HOME PANEL FRAME WORK
+    # LAYOUT 1: HOME DASHBOARD
     # ---------------------------------------------------------
     def init_home_view(self):
         self.home_frame = tk.Frame(self.stage_frame, bg="#1A1F2C")
@@ -80,11 +80,11 @@ class OasisInterface(tk.Tk):
         
         tk.Label(self.garden_box, text="\nYour Digital Terrarium Ecosystem is Blooming", font=("Arial", 16), fg="#BDC3C7", bg="#11151E").pack(expand=True)
         
-        # Test Simulation Trigger for meeting demo
+        # Test Simulation Trigger
         tk.Button(self.home_frame, text="Simulate Slouch Event (Trigger Reset)", font=("Arial", 12, "bold"), fg="white", bg="#C0392B", relief="flat", padx=15, pady=8, command=self.trigger_frosted_modal).pack(pady=5)
 
     # ---------------------------------------------------------
-    # LAYOUT 2: TASK BOARD INTERFACES
+    # LAYOUT 2: TASK BOARD INTERFACE
     # ---------------------------------------------------------
     def init_tasks_view(self):
         self.tasks_frame = tk.Frame(self.stage_frame, bg="#1A1F2C")
@@ -130,7 +130,7 @@ class OasisInterface(tk.Tk):
         slider.pack(fill="x", pady=5)
 
     # ---------------------------------------------------------
-    # NAVIGATION UTILITIES CONTROLS
+    # NAVIGATION UTILITIES
     # ---------------------------------------------------------
     def clear_stage_views(self):
         self.home_frame.pack_forget()
@@ -145,7 +145,7 @@ class OasisInterface(tk.Tk):
     def show_settings(self): self.clear_stage_views(); self.btn_settings.configure(bg="#2E4053"); self.settings_frame.pack(fill="both", expand=True)
 
     # ---------------------------------------------------------
-    # INTERCEPT MODALS OVERLAYS (Stress Mode Recovery screen)
+    # INTERCEPT MODALS OVERLAYS (Stress Mode Recovery)
     # ---------------------------------------------------------
     def trigger_frosted_modal(self):
         self.posture_lbl.configure(text="Posture:  Slouching", fg="#E74C3C")
@@ -157,7 +157,7 @@ class OasisInterface(tk.Tk):
         tk.Label(self.modal_overlay, text=" Screen Temporarily Locked for Mental Reset", font=("Arial", 22, "bold"), fg="#E74C3C", bg="#0D1117").pack(pady=(180, 10))
         tk.Label(self.modal_overlay, text="⭕", font=("Arial", 90), fg="#3498DB", bg="#0D1117").pack(pady=15)
         tk.Label(self.modal_overlay, text="Follow the breathing ring guide. Relax your eyes.", font=("Arial", 14), fg="#BDC3C7", bg="#0D1117").pack(pady=5)
-        if __name__ == "__main__":
-            app = OasisInterface()
-            app.mainloop()
+        
+        tk.Button(self.modal_overlay, text="Sit Straight (Dismiss Reset Mode)", font=("Arial", 12), fg="white", bg="#2ECC71", relief="flat", padx=15, pady=8, command=self.dismiss_frosted_modal).pack(pady=40)
 
+    def dismiss_frosted_modal(self):
