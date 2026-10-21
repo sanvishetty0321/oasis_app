@@ -172,3 +172,12 @@ class OasisInterface(tk.Tk):
         tk.Button(self.modal_overlay, text="Sit Straight (Dismiss Reset Mode)", font=("Arial", 12), fg="white", bg="#2ECC71", relief="flat", padx=15, pady=8, command=self.dismiss_frosted_modal).pack(pady=40)
 
     def dismiss_frosted_modal(self):
+                self.posture_lbl.configure(text="Posture:  Good", fg="#2ECC71")
+        self.focus_lbl.configure(text="Status:  Focused", fg="white")
+        self.modal_overlay.place_forget()
+
+if __name__ == "__main__":
+    app = OasisInterface()
+    app.mainloop()
+
+
