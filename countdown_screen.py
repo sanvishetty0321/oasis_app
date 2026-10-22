@@ -17,53 +17,58 @@ class OasisCountdownOnly(tk.Tk):
         self.video_label = tk.Label(self, bg="#0F1219")
         self.video_label.place(x=0, y=0, width=980, height=680)
         
-        # --- FIXED: AUTOMATIC VIDEO FILE LOOKUP ENGINE ---
+        # --- UPDATED SCANNER: Looks for exactly "tenor" first ---
         video_asset = None
-        current_dir_files = os.listdir(".") # Reads every single file inside your folder
+        current_files = os.listdir(".")
         
-        # Look for any file that starts with "tenor4" or has "tenor4" in it
-        for file in current_dir_files:
-            if "tenor4" in file.lower():
-                # Check for standard video extensions
-                if file.lower().endswith(('.mov', '.mp4', '.avi', '.m4v', '.mkv')):
+        # Priority 1: Strict match for "tenor" with video extensions
+        for file in current_files:
+            if "tenor" in file.lower() and file.lower().endswith(('.mov', '.mp4', '.avi')):
+                video_asset = file
+                break
+                
+        # Priority 2: Safe backup if tenor is missing (ignores drowsiness alerts)
+        if not video_asset:
+            for file in current_files:
+                if file.lower().endswith(('.mov', '.mp4')) and "dnd" not in file.lower():
                     video_asset = file
                     break
                     
-        # If it still can't find it, fall back to any video file in the folder as a rescue
+        # Ultimate Fallback: Just play whatever movie is left
         if not video_asset:
-            for file in current_dir_files:
-                if file.lower().endswith(('.mov', '.mp4')):
+            for file in current_files:
+                if file.lower().endswith(('.mov', '.mp4', '.avi')):
                     video_asset = file
                     break
 
         if video_asset and os.path.exists(video_asset):
             print(f"👉 SYSTEM LOG: Successfully matched and loading video asset: {video_asset}")
             try:
-                # Streams your exact .mov format file cleanly at an optimized refresh rate
-                self.player = tkvideo(video_asset, self.video_label, loop=1, size=(980, 680), hz=30)
+                # Optimized package initialization parameters 
+                self.player = tkvideo(video_asset, self.video_label, loop=1, size=(980, 680))
                 self.player.play()
             except Exception as e:
-                print(f"❌ SYSTEM ERROR: Found {video_asset} but your system codecs cannot play it. Details: {e}")
+                print(f"❌ SYSTEM ERROR: Video stream playback failed on {video_asset}. Details: {e}")
         else:
-            print("⚠️ SYSTEM WARNING: No video file containing the name 'tenor4' could be resolved in this directory.")
+            print("⚠️ SYSTEM WARNING: No valid background focus video discovered in folder pathways.")
 
         # 2. Transparent Control Overlay UI Canvas Layer
         self.main_canvas = tk.Canvas(self, width=980, height=680, bd=0, highlightthickness=0, bg="#0F1219")
         self.main_canvas.place(x=0, y=0)
         
-        # Style your top horizontal bar header
-        self.main_canvas.create_rectangle(0, 0, 980, 65, fill="#141821", outline="")
+        # Create UI panels directly over the interface canvas
+        self.top_bar_id = self.main_canvas.create_rectangle(0, 0, 980, 65, fill="#141821", outline="")
         self.main_canvas.create_line(0, 65, 980, 65, fill="#2C323F", width=1)
         
         self.main_canvas.create_text(30, 32, text="⚡ Focus Session Progress:", font=("Arial", 11, "bold"), fill="#FF69B4", anchor="w")
         self.clock_id = self.main_canvas.create_text(250, 32, text=self.format_time(self.total_seconds_left), font=("Courier New", 20, "bold"), fill="white", anchor="w")
         self.main_canvas.create_text(420, 32, text="Status: Focus window active.", font=("Arial", 11), fill="#A0AAB5", anchor="w")
         
-        btn = tk.Button(self, text="Close App 🛑", font=("Arial", 11, "bold"), fg="white", bg="#FF69B4", activebackground="#FF1493", bd=0, command=self.exit_app)
+        btn = tk.Button(self, text="Close App 🛑", font=("Arial", 11, "bold"), fill="white", bg="#FF69B4", activebackground="#FF1493", bd=0, command=self.exit_app)
         self.main_canvas.create_window(890, 32, window=btn, width=120, height=28)
         
-        # Forces the buttons and text straight over the top of your background movie
-        self.main_canvas.lift()
+        # Uses standard canvas element tags to correctly force overlay labels to topmost layer safely
+        self.main_canvas.tag_raise("all")
         
         self.run_timer()
 
