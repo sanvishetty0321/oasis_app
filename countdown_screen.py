@@ -1,7 +1,7 @@
 import os
 import sys
 import tkinter as tk
-from tkvideo import tkvideo  # High-fidelity video loop automation layer
+from tkvideo import tkvideo  
 
 class OasisCountdownOnly(tk.Tk):
     def __init__(self, target_minutes):
@@ -12,31 +12,27 @@ class OasisCountdownOnly(tk.Tk):
         self.resizable(False, False)
         
         self.total_seconds_left = target_minutes * 60
-        self.assets = {}
         
         # 1. Full-Screen Video Background Label Container
-        # This acts as the canvas canvas frame, specifically sized to loop your .mov asset
         self.video_label = tk.Label(self, bg="#0F1219")
         self.video_label.place(x=0, y=0, width=980, height=680)
         
-        # Target your focus movie file formats explicitly
         video_asset = "tenor4.mov"
         if not os.path.exists(video_asset):
             if os.path.exists("tenor4.MOV"):
                 video_asset = "tenor4.MOV"
                 
         if os.path.exists(video_asset):
-            # Stream the movie directly onto the backdrop layer container in a seamless loop
             self.player = tkvideo(video_asset, self.video_label, loop=1, size=(980, 680))
             self.player.play()
         else:
-            print("Warning: tenor4.mov not found in this directory folder.")
+            print("Warning: tenor4.mov not found.")
 
-        # 2. Transparent Control Overlay UI Canvas Layer (Sits cleanly over top the video)
-        self.main_canvas = tk.Canvas(self, width=980, height=680, bd=0, highlightthickness=0, bg="")
+        # 2. FIXED: UI Overlay Canvas Layer (Removed invalid bg="" to stop the TclError crash)
+        self.main_canvas = tk.Canvas(self, width=980, height=680, bd=0, highlightthickness=0)
         self.main_canvas.place(x=0, y=0)
         
-        # Top Header Strip Layout Banner
+        # Draw Top Header Strip Layout Banner
         self.main_canvas.create_rectangle(0, 0, 980, 65, fill="#141821", outline="")
         self.main_canvas.create_line(0, 65, 980, 65, fill="#2C323F", width=1)
         
@@ -44,7 +40,7 @@ class OasisCountdownOnly(tk.Tk):
         self.clock_id = self.main_canvas.create_text(250, 32, text=self.format_time(self.total_seconds_left), font=("Courier New", 20, "bold"), fill="white", anchor="w")
         self.main_canvas.create_text(420, 32, text="Status: Focus window active.", font=("Arial", 11), fill="#A0AAB5", anchor="w")
         
-        # Stop Close Button
+        # Close Button widget structure
         btn = tk.Button(self, text="Close App 🛑", font=("Arial", 11, "bold"), fg="white", bg="#FF69B4", activebackground="#FF1493", bd=0, command=self.exit_app)
         self.main_canvas.create_window(890, 32, window=btn, width=120, height=28)
         
@@ -68,10 +64,12 @@ class OasisCountdownOnly(tk.Tk):
         self.destroy()
 
 if __name__ == "__main__":
-    try:
-        chosen_mins = int(sys.argv[1])
-    except:
-        chosen_mins = 25
+    chosen_mins = 25
+    if len(sys.argv) > 1:
+        try:
+            chosen_mins = int(sys.argv[1])
+        except ValueError:
+            pass
         
     app = OasisCountdownOnly(chosen_mins)
     app.mainloop()
