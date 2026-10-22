@@ -1,71 +1,68 @@
 import os
+import sys
 import tkinter as tk
-from PIL import Image, ImageTk, ImageSequence
+from tkvideo import tkvideo  # Video loop layer
 
-class OasisDrowsyAlert(tk.Tk):
+class OasisDrowsyOverride(tk.Tk):
     def __init__(self):
         super().__init__()
         
-        # 1. Main Window Setup
-        self.title("OASIS - ALERT SYSTEM")
+        # 1. Main Window Settings
+        self.title("OASIS - ALERT: Distraction Detected")
         self.geometry("980x680")
         self.configure(bg="#0F1219")  
         self.resizable(False, False)
         
-        # Force window straight to the front to catch user attention
+        # Force the alert window straight to the front on execution
         self.lift()
         self.attributes('-topmost', True)
         
-        self.gif_frames = []
-        self.current_frame = 0
+        # 2. Full-Screen Video Background Label Container (DND.mov)
+        self.video_label = tk.Label(self, bg="#0F1219")
+        self.video_label.place(x=0, y=0, width=980, height=680)
         
-        self.main_canvas = tk.Canvas(self, width=980, height=680, bd=0, highlightthickness=0, bg="#0F1219")
-        self.main_canvas.pack(fill="both", expand=True)
-        
-        # 2. Load Full Screen DND.gif
-        gif_asset = None
-        for name in ["DND.gif", "dnd.gif", "DND.GIF"]:
-            if os.path.exists(name):
-                gif_asset = name
-                break
+        # Target your drowsy posture movie file formats explicitly
+        video_asset = "DND.mov"
+        if not os.path.exists(video_asset):
+            if os.path.exists("DND.MOV"):
+                video_asset = "DND.MOV"
                 
-        if gif_asset:
-            raw_gif = Image.open(gif_asset)
-            for frame in ImageSequence.Iterator(raw_gif):
-                resized = frame.convert("RGBA").resize((980, 680), Image.Resampling.LANCZOS)
-                self.gif_frames.append(ImageTk.PhotoImage(resized))
-            
-            if self.gif_frames:
-                self.bg_id = self.main_canvas.create_image(0, 0, image=self.gif_frames[0], anchor="nw")
-                self.animate_gif()
+        if os.path.exists(video_asset):
+            # Stream the movie directly onto the background layer in a continuous loop
+            self.player = tkvideo(video_asset, self.video_label, loop=1, size=(980, 680))
+            self.player.play()
         else:
-            self.main_canvas.create_text(490, 200, text="⚠️ ALERT SCREEN Active ⚠️", font=("Arial", 24, "bold"), fill="red")
-            self.main_canvas.create_text(490, 300, text="[ Place DND.gif inside the OasisTest folder ]", font=("Arial", 14), fill="#A0AAB5")
+            print("⚠️ SYSTEM LOG: 'DND.mov' not found in this directory folder pathway.")
 
-        # 3. Top Banner Warning Strip Overlay
-        self.top_pixel = Image.new("RGBA", (1, 1), (15, 18, 25, 230))
-        self.top_photo = ImageTk.PhotoImage(self.top_pixel.resize((980, 75)))
-        self.main_canvas.create_image(0, 0, image=self.top_photo, anchor="nw")
-        self.main_canvas.create_line(0, 75, 980, 75, fill="red", width=2)
+        # 3. Transparent Warning Control Overlay UI Canvas Layer
+        self.main_canvas = tk.Canvas(self, width=980, height=680, bd=0, highlightthickness=0, bg="")
+        self.main_canvas.place(x=0, y=0)
         
-        # Centered bold wake up warning text
-        self.main_canvas.create_text(490, 38, text="🚨 DROWSINESS/SLOUCHING DETECTED! WAKE UP & RESET POSTURE 🚨", font=("Arial", 14, "bold"), fill="red")
+        # Top Header Strip Layout Banner (Slightly darker slate red tint for urgency)
+        self.main_canvas.create_rectangle(0, 0, 980, 65, fill="#1D1217", outline="")
+        self.main_canvas.create_line(0, 65, 980, 65, fill="#3F232F", width=1)
+        
+        # Alert Typography
+        self.main_canvas.create_text(30, 32, text="⚠️ POSTURE WARNING:", font=("Arial", 11, "bold"), fill="#FF69B4", anchor="w")
+        self.main_canvas.create_text(210, 32, text="Slouching or Drowsiness detected! Re-align your position.", font=("Arial", 11), fill="white", anchor="w")
+        
+        # Action Return Reset Button
+        btn = tk.Button(
+            self, 
+            text="Reset Workspace 🔄", 
+            font=("Arial", 11, "bold"), 
+            fg="white", 
+            bg="#FF69B4", 
+            activebackground="#FF1493", 
+            bd=0, 
+            command=self.return_to_hub
+        )
+        self.main_canvas.create_window(880, 32, window=btn, width=150, height=28)
 
-        # 4. Action Dismiss Button to go back to work
-        btn = tk.Button(self, text="Dismiss & Resume Work ⚡", font=("Arial", 11, "bold"), fg="white", bg="#FF69B4", activebackground="#FF1493", bd=0, command=self.resume_work)
-        self.main_canvas.create_window(490, 620, window=btn, width=240, height=35)
-
-    def animate_gif(self):
-        if self.gif_frames:
-            self.current_frame = (self.current_frame + 1) % len(self.gif_frames)
-            self.main_canvas.itemconfig(self.bg_id, image=self.gif_frames[self.current_frame])
-            self.main_canvas.tag_lower(self.bg_id)
-            self.after(60, self.animate_gif)
-
-    def resume_work(self):
-        self.destroy() # Closes alert screen safely
-        os.system("python workspace_screen.py") # Returns user straight to home base workspace
+    def return_to_hub(self):
+        self.destroy()  # Closes the drowsy screen overlay window immediately
+        os.system("python workspace_screen.py")  # Boots the home workspace page back up safely
 
 if __name__ == "__main__":
-    app = OasisDrowsyAlert()
+    app = OasisOverride() if 'OasisOverride' in globals() else OasisDrowsyOverride()
     app.mainloop()
