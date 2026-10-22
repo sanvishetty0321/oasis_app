@@ -1,14 +1,14 @@
 import os
 import sys
 import tkinter as tk
-from tkvideo import tkvideo  # Video loop layer
+from PIL import Image, ImageTk
 
 class OasisDrowsyOverride(tk.Tk):
     def __init__(self):
         super().__init__()
         
         # 1. Main Window Settings
-        self.title("OASIS - ALERT: Distraction Detected")
+        self.title("OASIS - ALERT: Drowsiness Detected")
         self.geometry("980x680")
         self.configure(bg="#0F1219")  
         self.resizable(False, False)
@@ -17,36 +17,48 @@ class OasisDrowsyOverride(tk.Tk):
         self.lift()
         self.attributes('-topmost', True)
         
-        # 2. Full-Screen Video Background Label Container (DND.mov)
-        self.video_label = tk.Label(self, bg="#0F1219")
-        self.video_label.place(x=0, y=0, width=980, height=680)
+        self.assets = {}
         
-        # Target your drowsy posture movie file formats explicitly
-        video_asset = "DND.mov"
-        if not os.path.exists(video_asset):
-            if os.path.exists("DND.MOV"):
-                video_asset = "DND.MOV"
+        # 2. Main Full Screen Canvas Layer
+        self.main_canvas = tk.Canvas(self, width=980, height=680, bd=0, highlightthickness=0, bg="#0F1219")
+        self.main_canvas.pack(fill="both", expand=True)
+        
+        # --- STATIC IMAGE BACKDROP ENGINE ---
+        # Explicitly targets your "new.jpeg" alert background file
+        bg_asset = None
+        for name in ["new.jpeg", "new.JPEG", "new.jpg", "img.jpeg", "login.png"]:
+            if os.path.exists(name):
+                bg_asset = name
+                break
                 
-        if os.path.exists(video_asset):
-            # Stream the movie directly onto the background layer in a continuous loop
-            self.player = tkvideo(video_asset, self.video_label, loop=1, size=(980, 680))
-            self.player.play()
+        if bg_asset:
+            try:
+                raw_image = Image.open(bg_asset)
+                resized_image = raw_image.resize((980, 680), Image.Resampling.LANCZOS)
+                self.assets["bg_img"] = ImageTk.PhotoImage(resized_image)
+                self.main_canvas.create_image(0, 0, image=self.assets["bg_img"], anchor="nw")
+                print(f"👉 SYSTEM LOG: Successfully loaded drowsy background asset: {bg_asset}")
+            except Exception as e:
+                print(f"❌ SYSTEM ERROR Decoding Image: {e}")
         else:
-            print("⚠️ SYSTEM LOG: 'DND.mov' not found in this directory folder pathway.")
+            print("⚠️ SYSTEM LOG: No static asset found for alert screen. Running on default dark template.")
 
-        # 3. Transparent Warning Control Overlay UI Canvas Layer
-        self.main_canvas = tk.Canvas(self, width=980, height=680, bd=0, highlightthickness=0, bg="")
-        self.main_canvas.place(x=0, y=0)
+        # --- 3. COMPACT SINGLE-LINE HORIZONTAL BAR (TOP) ---
+        # Dark crimson translucent overlay banner bar for urgency (Width: 980px, Height: 65px)
+        top_strip_pixel = Image.new("RGBA", (1, 1), (29, 18, 23, 225)) 
+        self.assets["top_bar_bg"] = ImageTk.PhotoImage(top_strip_pixel.resize((980, 65)))
+        self.main_canvas.create_image(0, 0, image=self.assets["top_bar_bg"], anchor="nw")
+        self.main_canvas.create_line(0, 65, 980, 65, fill="#4D2533", width=1)
         
-        # Top Header Strip Layout Banner (Slightly darker slate red tint for urgency)
-        self.main_canvas.create_rectangle(0, 0, 980, 65, fill="#1D1217", outline="")
-        self.main_canvas.create_line(0, 65, 980, 65, fill="#3F232F", width=1)
+        # Alignment anchor along the single top-line layout
+        y_center = 32
         
-        # Alert Typography
-        self.main_canvas.create_text(30, 32, text="⚠️ POSTURE WARNING:", font=("Arial", 11, "bold"), fill="#FF69B4", anchor="w")
-        self.main_canvas.create_text(210, 32, text="Slouching or Drowsiness detected! Re-align your position.", font=("Arial", 11), fill="white", anchor="w")
-        
-        # Action Return Reset Button
+        # Warning Typography Label Elements
+        self.main_canvas.create_text(30, y_center, text="⚠️ DROWSINESS DETECTED:", font=("Arial", 11, "bold"), fill="#FF69B4", anchor="w")
+        self.main_canvas.create_text(230, y_center, text="You look sleepy! Stand up, stretch, and move around!", font=("Arial", 11, "bold"), fill="white", anchor="w")
+
+        # --- 4. COMPACT UPPER RESET WORKSPACE BUTTON ---
+        btn_stop_x = 810
         btn = tk.Button(
             self, 
             text="Reset Workspace 🔄", 
@@ -57,12 +69,12 @@ class OasisDrowsyOverride(tk.Tk):
             bd=0, 
             command=self.return_to_hub
         )
-        self.main_canvas.create_window(880, 32, window=btn, width=150, height=28)
+        self.main_canvas.create_window(btn_stop_x + 75, y_center, window=btn, width=150, height=28, anchor="center")
 
     def return_to_hub(self):
-        self.destroy()  # Closes the drowsy screen overlay window immediately
-        os.system("python workspace_screen.py")  # Boots the home workspace page back up safely
+        self.destroy()  # Closes the drowsy alert screen window immediately
+        os.system("python workspace_screen.py")  # Safely re-opens your main workspace hub script
 
 if __name__ == "__main__":
-    app = OasisOverride() if 'OasisOverride' in globals() else OasisDrowsyOverride()
+    app = OasisDrowsyOverride()
     app.mainloop()
