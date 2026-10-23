@@ -1,4 +1,8 @@
 import os
+
+import sys
+import subprocess
+
 import tkinter as tk
 from PIL import Image, ImageTk
 
@@ -16,7 +20,8 @@ class OasisLoginOnly(tk.Tk):
         # FIX: Scan for both lowercase and uppercase variations
         self.bg_img = None
         img_target = None
-        for name in ["login.png", "login.PNG", "login.jpg", "login.JPEG", "login.jpeg"]:
+        for name in ["assets/login.jpeg", "assets/login.jpg", "assets/login.png",
+             "assets/login.PNG", "assets/login.JPEG", "assets/login.JPG"]:
             if os.path.exists(name):
                 img_target = name
                 break
@@ -46,9 +51,15 @@ class OasisLoginOnly(tk.Tk):
         btn = tk.Button(self, text="Enter Workspace →", font=("Arial", 12, "bold"), fg="white", bg="#FF69B4", activebackground="#FF1493", bd=0, command=self.go_to_workspace)
         self.main_canvas.create_window(490, 313, window=btn, width=220, height=38)
 
+    
+    
     def go_to_workspace(self):
-        self.destroy()  
-        os.system("python workspace_screen.py")  
+        script_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "workspace_screen.py"
+        )
+        self.destroy()
+        subprocess.Popen([sys.executable, script_path])
 
 if __name__ == "__main__":
     app = OasisLoginOnly()

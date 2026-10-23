@@ -22,24 +22,34 @@ class OasisCountdownOnly(tk.Tk):
         
         # --- HIGH-RELIABILITY STATIC IMAGE BACKDROP ENGINE ---
         # Explicitly targets your "img.jpeg" background file
+        
+        # --- BACKGROUND IMAGE ---
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+
         bg_asset = None
-        for name in ["img.jpeg", "img.JPEG", "img.jpg", "tenor.jpg", "login.png"]:
-            if os.path.exists(name):
-                bg_asset = name
+        for name in ["img.jpeg", "img.JPEG", "img.jpg", "login.jpeg", "new.jpeg"]:
+            image_path = os.path.join(base_dir, "assets", name)
+            if os.path.exists(image_path):
+                bg_asset = image_path
                 break
-                
+
         if bg_asset:
             try:
                 raw_image = Image.open(bg_asset)
-                resized_image = raw_image.resize((980, 680), Image.Resampling.LANCZOS)
+                resized_image = raw_image.resize(
+                    (980, 680), Image.Resampling.LANCZOS
+                )
                 self.assets["bg_img"] = ImageTk.PhotoImage(resized_image)
-                self.main_canvas.create_image(0, 0, image=self.assets["bg_img"], anchor="nw")
-                print(f"👉 SYSTEM LOG: Successfully loaded static background asset: {bg_asset}")
+                self.main_canvas.create_image(
+                    0, 0, image=self.assets["bg_img"], anchor="nw"
+                )
+                print(f"Successfully loaded background: {bg_asset}")
             except Exception as e:
-                print(f"❌ SYSTEM ERROR Decoding Image: {e}")
+                print(f"Error loading background image: {e}")
         else:
-            print("⚠️ SYSTEM LOG: No static asset found. Running on default dark mode profile.")
+            print("No background image found in the assets folder.")
 
+               
         # --- 3. COMPACT SINGLE-LINE HORIZONTAL BAR (TOP) ---
         top_strip_pixel = Image.new("RGBA", (1, 1), (20, 24, 33, 225)) 
         self.assets["top_bar_bg"] = ImageTk.PhotoImage(top_strip_pixel.resize((980, 65)))
